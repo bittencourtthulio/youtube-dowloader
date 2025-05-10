@@ -9,7 +9,7 @@ function App() {
     e.preventDefault();
     
     try {
-      const response = await fetch('http://localhost:3001/download', {
+      const response = await fetch('http://localhost:3005/download', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -32,11 +32,11 @@ function App() {
   return (
     <div className="App">
       <header className="App-header">
-        <h1>Download de Vídeos do Youtube</h1>
+        <h1>YT Video Saver</h1>
         <form onSubmit={handleDownload}>
           <input
             type="text"
-            placeholder="Insira a URL do vídeo"
+            placeholder="Insira a URL do vídeo a ser baixado"
             value={url}
             onChange={(e) => setUrl(e.target.value)}
           />

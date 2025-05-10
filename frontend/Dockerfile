@@ -22,8 +22,11 @@ FROM nginx:alpine
 # Copie os arquivos build do contêiner Node.js para o diretório de servidos do Nginx
 COPY --from=build /usr/src/app/build /usr/share/nginx/html
 
+# Copie o arquivo de configuração personalizado do Nginx
+COPY nginx.conf /etc/nginx/conf.d/default.conf
+
 # Exponha a porta que o Nginx escutará
-EXPOSE 80
+EXPOSE 8099
 
 # Comando padrão para iniciar o Nginx
 CMD ["nginx", "-g", "daemon off;"]

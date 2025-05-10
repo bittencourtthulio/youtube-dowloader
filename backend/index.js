@@ -1,10 +1,12 @@
 const express = require('express');
+const cors = require('cors');
 const { spawn } = require('child_process');
 const path = require('path');
 const os = require('os');
 
 const app = express();
 app.use(express.json());
+app.use(cors());
 
 app.post('/download', (req, res) => {
   const { url } = req.body;
@@ -17,7 +19,6 @@ app.post('/download', (req, res) => {
   const command = 'yt-dlp';
   const args = ['-o', `${videoDir}/%(title)s.%(ext)s`, url];
 
-  // Executa o comando para baixar o vídeo
   const downloadProcess = spawn(command, args);
 
   downloadProcess.stdout.on('data', (data) => {
@@ -37,6 +38,6 @@ app.post('/download', (req, res) => {
   });
 });
 
-app.listen(3000, () => {
-  console.log('Servidor rodando na porta 3000');
+app.listen(3005, () => {
+  console.log('Servidor rodando na porta 3005');
 });

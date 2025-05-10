@@ -6,7 +6,7 @@ services:
       context: ./backend
       dockerfile: Dockerfile
     ports:
-      - "3000:3000"
+      - "3005:3005"
     volumes:
       - ./backend:/usr/src/app
     environment:
@@ -17,6 +17,6 @@ services:
       context: ./frontend
       dockerfile: Dockerfile
     ports:
-      - "80:80"
+      - "8099:8099"
     volumes:
       - ./frontend/build:/usr/share/nginx/html
