@@ -9,7 +9,7 @@ function App() {
     e.preventDefault();
     
     try {
-      const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:3005';
+      const apiUrl = process.env.REACT_APP_API_URL || 'https://refreshing-beauty-production-f560.up.railway.app';
       const response = await fetch(`${apiUrl}/download`, {
         method: 'POST',
         headers: {
