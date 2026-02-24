@@ -1,6 +1,12 @@
 # Use a imagem oficial do Node.js como base
 FROM node:18
 
+# Instale o yt-dlp e ffmpeg
+RUN apt-get update && apt-get install -y python3 ffmpeg && \
+    curl -L https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp -o /usr/local/bin/yt-dlp && \
+    chmod a+rx /usr/local/bin/yt-dlp && \
+    apt-get clean && rm -rf /var/lib/apt/lists/*
+
 # Defina o diretório de trabalho dentro do contêiner
 WORKDIR /usr/src/app
 
@@ -17,4 +23,4 @@ COPY . .
 EXPOSE 3005
 
 # Comando para iniciar o servidor
-CMD ["node", "index.js"]
+CMD ["npm", "start"]

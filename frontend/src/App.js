@@ -9,7 +9,8 @@ function App() {
     e.preventDefault();
     
     try {
-      const response = await fetch('http://localhost:3005/download', {
+      const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:3005';
+      const response = await fetch(`${apiUrl}/download`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
