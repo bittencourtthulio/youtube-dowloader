@@ -177,6 +177,140 @@ function Docs() {
         </div>
       </section>
 
+      {/* POST /direct-url */}
+      <section className="docs-section">
+        <div className="endpoint-card">
+          <div className="endpoint-header">
+            <span className="method post">POST</span>
+            <span className="path">/direct-url</span>
+          </div>
+          <p className="endpoint-desc">
+            Retorna a URL direta do vídeo com a extensão do arquivo (ex: .mp4, .webm).
+          </p>
+
+          <h3>Headers</h3>
+          <table>
+            <thead>
+              <tr>
+                <th>Header</th>
+                <th>Valor</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>Content-Type</code></td>
+                <td><code>application/json</code></td>
+              </tr>
+            </tbody>
+          </table>
+
+          <h3>Body (JSON)</h3>
+          <table>
+            <thead>
+              <tr>
+                <th>Campo</th>
+                <th>Tipo</th>
+                <th>Obrigatório</th>
+                <th>Descrição</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>url</code></td>
+                <td>string</td>
+                <td>Sim</td>
+                <td>URL do vídeo do YouTube</td>
+              </tr>
+              <tr>
+                <td><code>format</code></td>
+                <td>string</td>
+                <td>Não</td>
+                <td>Formato desejado (ex: "best", "bestvideo+bestaudio", ou um format_id). Padrão: "best"</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <h3>Exemplo de Request</h3>
+          <pre>
+{`curl -X POST ${apiUrl}/direct-url \\
+  -H "Content-Type: application/json" \\
+  -d '{"url": "https://www.youtube.com/watch?v=dQw4w9WgXcQ"}'`}
+          </pre>
+
+          <h3>Respostas</h3>
+
+          <div className="response-block success">
+            <div className="response-header">
+              <span className="status-code">200</span> OK
+            </div>
+            <pre>{`{
+  "url": "https://...(URL direta do vídeo)",
+  "ext": "mp4",
+  "filename": "Nome do Video.mp4",
+  "resolution": "1920x1080",
+  "filesize": 52428800
+}`}</pre>
+          </div>
+
+          <h3>Campos da Resposta</h3>
+          <table>
+            <thead>
+              <tr>
+                <th>Campo</th>
+                <th>Tipo</th>
+                <th>Descrição</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>url</code></td>
+                <td>string</td>
+                <td>URL direta do vídeo</td>
+              </tr>
+              <tr>
+                <td><code>ext</code></td>
+                <td>string</td>
+                <td>Extensão do arquivo (mp4, webm, etc.)</td>
+              </tr>
+              <tr>
+                <td><code>filename</code></td>
+                <td>string</td>
+                <td>Nome do arquivo com extensão, pronto para download</td>
+              </tr>
+              <tr>
+                <td><code>resolution</code></td>
+                <td>string | null</td>
+                <td>Resolução do vídeo (ex: "1920x1080")</td>
+              </tr>
+              <tr>
+                <td><code>filesize</code></td>
+                <td>number | null</td>
+                <td>Tamanho do arquivo em bytes (quando disponível)</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div className="response-block error">
+            <div className="response-header">
+              <span className="status-code">400</span> Bad Request
+            </div>
+            <pre>{`{
+  "error": "A URL do vídeo é necessária."
+}`}</pre>
+          </div>
+
+          <div className="response-block error">
+            <div className="response-header">
+              <span className="status-code">500</span> Internal Server Error
+            </div>
+            <pre>{`{
+  "error": "Erro ao obter URL direta do vídeo.",
+  "details": "..."
+}`}</pre>
+          </div>
+        </div>
+      </section>
+
       {/* POST /download */}
       <section className="docs-section">
         <div className="endpoint-card">

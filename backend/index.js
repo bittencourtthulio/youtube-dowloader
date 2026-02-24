@@ -63,6 +63,50 @@ app.post('/info', (req, res) => {
   });
 });
 
+app.post('/direct-url', (req, res) => {
+  const { url, format } = req.body;
+
+  if (!url) {
+    return res.status(400).json({ error: 'A URL do vídeo é necessária.' });
+  }
+
+  const args = ['-j', '--no-download', '-f', format || 'best', url];
+  const process = spawn('yt-dlp', args);
+
+  let output = '';
+  let errorOutput = '';
+
+  process.stdout.on('data', (data) => {
+    output += data.toString();
+  });
+
+  process.stderr.on('data', (data) => {
+    errorOutput += data.toString();
+  });
+
+  process.on('close', (code) => {
+    if (code !== 0) {
+      return res.status(500).json({ error: 'Erro ao obter URL direta do vídeo.', details: errorOutput });
+    }
+
+    try {
+      const data = JSON.parse(output);
+      const ext = data.ext || 'mp4';
+      const title = (data.title || 'video').replace(/[^a-zA-Z0-9_\-\s]/g, '');
+
+      res.json({
+        url: data.url,
+        ext,
+        filename: `${title}.${ext}`,
+        resolution: data.resolution || null,
+        filesize: data.filesize || data.filesize_approx || null,
+      });
+    } catch (e) {
+      res.status(500).json({ error: 'Erro ao processar dados do vídeo.' });
+    }
+  });
+});
+
 app.post('/download', (req, res) => {
   const { url } = req.body;
 
