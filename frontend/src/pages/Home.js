@@ -7,6 +7,7 @@ function Home() {
   const [downloadUrl, setDownloadUrl] = useState('');
   const [videoTitle, setVideoTitle] = useState('');
   const [thumbnail, setThumbnail] = useState('');
+  const [directUrl, setDirectUrl] = useState('');
   const [loading, setLoading] = useState(false);
 
   const handleDownload = async (e) => {
@@ -16,26 +17,38 @@ function Home() {
     setDownloadUrl('');
     setVideoTitle('');
     setThumbnail('');
+    setDirectUrl('');
 
     try {
       const apiUrl = process.env.REACT_APP_API_URL || 'https://refreshing-beauty-production-f560.up.railway.app';
-      const response = await fetch(`${apiUrl}/info`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ url }),
-      });
 
-      const data = await response.json();
+      const [infoRes, directRes] = await Promise.all([
+        fetch(`${apiUrl}/info`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ url }),
+        }),
+        fetch(`${apiUrl}/direct-url`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ url }),
+        }),
+      ]);
 
-      if (response.ok) {
+      const data = await infoRes.json();
+
+      if (infoRes.ok) {
         setVideoTitle(data.title);
         setThumbnail(data.thumbnail);
         setDownloadUrl(data.url);
         setMessage(`${data.title} - ${data.duration_string}`);
       } else {
         setMessage(data.error);
+      }
+
+      if (directRes.ok) {
+        const directData = await directRes.json();
+        setDirectUrl(`${directData.filename}`);
       }
     } catch (error) {
       setMessage('Erro ao conectar ao servidor.');
@@ -67,6 +80,7 @@ function Home() {
           <a href={downloadUrl} target="_blank" rel="noopener noreferrer" className="download-btn">
             Download MP4
           </a>
+          {directUrl && <p className="direct-url">{directUrl}</p>}
         </div>
       )}
 

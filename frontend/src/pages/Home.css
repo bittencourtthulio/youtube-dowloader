@@ -109,3 +109,15 @@
 .download-btn:hover {
   background-color: #3bb578;
 }
+
+.direct-url {
+  font-size: 0.85rem;
+  color: #61dafb;
+  background-color: #282c34;
+  padding: 10px 14px;
+  border-radius: 6px;
+  border: 1px solid #3a3f47;
+  word-break: break-all;
+  text-align: center;
+  margin: 0;
+}
