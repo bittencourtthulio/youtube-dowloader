@@ -8,6 +8,8 @@ function Home() {
   const [videoTitle, setVideoTitle] = useState('');
   const [thumbnail, setThumbnail] = useState('');
   const [directUrl, setDirectUrl] = useState('');
+  const [directFilename, setDirectFilename] = useState('');
+  const [copied, setCopied] = useState(false);
   const [loading, setLoading] = useState(false);
 
   const handleDownload = async (e) => {
@@ -18,6 +20,8 @@ function Home() {
     setVideoTitle('');
     setThumbnail('');
     setDirectUrl('');
+    setDirectFilename('');
+    setCopied(false);
 
     try {
       const apiUrl = process.env.REACT_APP_API_URL || 'https://refreshing-beauty-production-f560.up.railway.app';
@@ -48,7 +52,8 @@ function Home() {
 
       if (directRes.ok) {
         const directData = await directRes.json();
-        setDirectUrl(`${directData.filename}`);
+        setDirectUrl(directData.url);
+        setDirectFilename(directData.filename);
       }
     } catch (error) {
       setMessage('Erro ao conectar ao servidor.');
@@ -80,7 +85,20 @@ function Home() {
           <a href={downloadUrl} target="_blank" rel="noopener noreferrer" className="download-btn">
             Download MP4
           </a>
-          {directUrl && <p className="direct-url">{directUrl}</p>}
+          {directUrl && (
+            <div className="direct-url-box">
+              <p className="direct-url-label">{directFilename}</p>
+              <div className="direct-url-row">
+                <input type="text" readOnly value={directUrl} className="direct-url-input" />
+                <button
+                  className="copy-btn"
+                  onClick={() => { navigator.clipboard.writeText(directUrl); setCopied(true); setTimeout(() => setCopied(false), 2000); }}
+                >
+                  {copied ? 'Copiado!' : 'Copiar'}
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       )}
 
