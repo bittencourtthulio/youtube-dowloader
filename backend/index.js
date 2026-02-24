@@ -1,39 +1,94 @@
 const express = require('express');
 const cors = require('cors');
 const { spawn } = require('child_process');
-const path = require('path');
-const os = require('os');
 
 const app = express();
 app.use(express.json());
 app.use(cors());
 
+app.post('/info', (req, res) => {
+  const { url } = req.body;
+
+  if (!url) {
+    return res.status(400).json({ error: 'A URL do vídeo é necessária.' });
+  }
+
+  const args = ['-j', '--no-download', url];
+  const process = spawn('yt-dlp', args);
+
+  let output = '';
+  let errorOutput = '';
+
+  process.stdout.on('data', (data) => {
+    output += data.toString();
+  });
+
+  process.stderr.on('data', (data) => {
+    errorOutput += data.toString();
+  });
+
+  process.on('close', (code) => {
+    if (code !== 0) {
+      return res.status(500).json({ error: 'Erro ao obter informações do vídeo.', details: errorOutput });
+    }
+
+    try {
+      const videoData = JSON.parse(output);
+
+      const formats = (videoData.formats || [])
+        .filter((f) => f.url && f.ext)
+        .map((f) => ({
+          format_id: f.format_id,
+          ext: f.ext,
+          resolution: f.resolution || 'audio only',
+          filesize: f.filesize || null,
+          url: f.url,
+        }));
+
+      res.json({
+        title: videoData.title,
+        thumbnail: videoData.thumbnail,
+        duration: videoData.duration,
+        duration_string: videoData.duration_string,
+        channel: videoData.channel,
+        view_count: videoData.view_count,
+        upload_date: videoData.upload_date,
+        description: videoData.description,
+        url: videoData.url || (formats.length > 0 ? formats[formats.length - 1].url : null),
+        formats,
+      });
+    } catch (e) {
+      res.status(500).json({ error: 'Erro ao processar dados do vídeo.' });
+    }
+  });
+});
+
 app.post('/download', (req, res) => {
   const { url } = req.body;
 
   if (!url) {
-    return res.status(400).send({ error: 'A URL do vídeo é necessária.' });
+    return res.status(400).json({ error: 'A URL do vídeo é necessária.' });
   }
 
-  const videoDir = '/tmp';
-  const command = 'yt-dlp';
-  const args = ['-o', `${videoDir}/%(title)s.%(ext)s`, url];
+  const args = ['--get-url', '-f', 'best', url];
+  const process = spawn('yt-dlp', args);
 
-  const downloadProcess = spawn(command, args);
+  let output = '';
+  let errorOutput = '';
 
-  downloadProcess.stdout.on('data', (data) => {
-    console.log(`Status: ${data}`);
+  process.stdout.on('data', (data) => {
+    output += data.toString();
   });
 
-  downloadProcess.stderr.on('data', (data) => {
-    console.error(`Erro: ${data}`);
+  process.stderr.on('data', (data) => {
+    errorOutput += data.toString();
   });
 
-  downloadProcess.on('close', (code) => {
+  process.on('close', (code) => {
     if (code === 0) {
-      res.send({ message: 'Vídeo baixado com sucesso!' });
+      res.json({ message: 'URL do vídeo obtida com sucesso!', download_url: output.trim() });
     } else {
-      res.status(500).send({ error: `Erro ao baixar vídeo. Código de saída: ${code}` });
+      res.status(500).json({ error: 'Erro ao obter URL do vídeo.', details: errorOutput });
     }
   });
 });
