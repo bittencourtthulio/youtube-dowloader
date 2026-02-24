@@ -4,16 +4,22 @@ import './Home.css';
 function Home() {
   const [url, setUrl] = useState('');
   const [message, setMessage] = useState('');
+  const [downloadUrl, setDownloadUrl] = useState('');
+  const [videoTitle, setVideoTitle] = useState('');
+  const [thumbnail, setThumbnail] = useState('');
   const [loading, setLoading] = useState(false);
 
   const handleDownload = async (e) => {
     e.preventDefault();
     setLoading(true);
     setMessage('');
+    setDownloadUrl('');
+    setVideoTitle('');
+    setThumbnail('');
 
     try {
       const apiUrl = process.env.REACT_APP_API_URL || 'https://refreshing-beauty-production-f560.up.railway.app';
-      const response = await fetch(`${apiUrl}/download`, {
+      const response = await fetch(`${apiUrl}/info`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -24,7 +30,10 @@ function Home() {
       const data = await response.json();
 
       if (response.ok) {
-        setMessage(data.message);
+        setVideoTitle(data.title);
+        setThumbnail(data.thumbnail);
+        setDownloadUrl(data.url);
+        setMessage(`${data.title} - ${data.duration_string}`);
       } else {
         setMessage(data.error);
       }
@@ -47,10 +56,21 @@ function Home() {
           onChange={(e) => setUrl(e.target.value)}
         />
         <button type="submit" disabled={loading}>
-          {loading ? 'Baixando...' : 'Baixar'}
+          {loading ? 'Buscando...' : 'Buscar'}
         </button>
       </form>
-      {message && <p className="home-message">{message}</p>}
+
+      {downloadUrl && (
+        <div className="video-result">
+          {thumbnail && <img src={thumbnail} alt={videoTitle} className="video-thumbnail" />}
+          <p className="video-title">{message}</p>
+          <a href={downloadUrl} target="_blank" rel="noopener noreferrer" className="download-btn">
+            Download MP4
+          </a>
+        </div>
+      )}
+
+      {!downloadUrl && message && <p className="home-message">{message}</p>}
     </div>
   );
 }
