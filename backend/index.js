@@ -15,7 +15,7 @@ app.post('/download', (req, res) => {
     return res.status(400).send({ error: 'A URL do vídeo é necessária.' });
   }
 
-  const videoDir = path.resolve(os.homedir(), 'Downloads');
+  const videoDir = '/tmp';
   const command = 'yt-dlp';
   const args = ['-o', `${videoDir}/%(title)s.%(ext)s`, url];
 
@@ -38,6 +38,7 @@ app.post('/download', (req, res) => {
   });
 });
 
-app.listen(3005, () => {
-  console.log('Servidor rodando na porta 3005');
+const PORT = process.env.PORT || 3005;
+app.listen(PORT, () => {
+  console.log(`Servidor rodando na porta ${PORT}`);
 });
