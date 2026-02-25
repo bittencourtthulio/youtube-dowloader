@@ -70,7 +70,7 @@ app.post('/direct-url', (req, res) => {
     return res.status(400).json({ error: 'A URL do vídeo é necessária.' });
   }
 
-  const args = ['-j', '--no-download', '-f', format || 'best', url];
+  const args = ['-j', '--no-download', '-f', format || 'b', url];
   const process = spawn('yt-dlp', args);
 
   let output = '';
@@ -114,7 +114,7 @@ app.post('/download', (req, res) => {
     return res.status(400).json({ error: 'A URL do vídeo é necessária.' });
   }
 
-  const args = ['--get-url', '-f', 'best', url];
+  const args = ['--get-url', '-f', 'b', url];
   const process = spawn('yt-dlp', args);
 
   let output = '';
