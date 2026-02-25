@@ -69,6 +69,11 @@
   color: #1e2127;
 }
 
+.method.get {
+  background-color: #61affe;
+  color: #1e2127;
+}
+
 .path {
   font-family: 'Courier New', monospace;
   font-size: 18px;

@@ -311,6 +311,102 @@ function Docs() {
         </div>
       </section>
 
+      {/* GET /stream */}
+      <section className="docs-section">
+        <div className="endpoint-card">
+          <div className="endpoint-header">
+            <span className="method get">GET</span>
+            <span className="path">/stream</span>
+          </div>
+          <p className="endpoint-desc">
+            Faz o download do vídeo via proxy do servidor e retorna o arquivo diretamente como streaming.
+            Contorna o bloqueio de IP do YouTube, permitindo baixar o vídeo de qualquer lugar.
+          </p>
+
+          <h3>Query Parameters</h3>
+          <table>
+            <thead>
+              <tr>
+                <th>Parâmetro</th>
+                <th>Tipo</th>
+                <th>Obrigatório</th>
+                <th>Descrição</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>url</code></td>
+                <td>string</td>
+                <td>Sim</td>
+                <td>URL do vídeo do YouTube (URL-encoded)</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <h3>Exemplo de Request</h3>
+          <pre>
+{`curl -o video.mp4 "${apiUrl}/stream?url=https%3A%2F%2Fwww.youtube.com%2Fwatch%3Fv%3DdQw4w9WgXcQ"`}
+          </pre>
+
+          <h3>Respostas</h3>
+
+          <div className="response-block success">
+            <div className="response-header">
+              <span className="status-code">200</span> OK
+            </div>
+            <pre>{`Headers:
+  Content-Type: video/mp4
+  Content-Disposition: attachment; filename="Nome do Video.mp4"
+  Content-Length: 52428800 (quando disponível)
+
+Body: arquivo de vídeo em streaming`}</pre>
+          </div>
+
+          <h3>Headers da Resposta</h3>
+          <table>
+            <thead>
+              <tr>
+                <th>Header</th>
+                <th>Descrição</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>Content-Type</code></td>
+                <td>Tipo do arquivo (video/mp4 ou video/webm)</td>
+              </tr>
+              <tr>
+                <td><code>Content-Disposition</code></td>
+                <td>Nome do arquivo para download (ex: "Nome do Video.mp4")</td>
+              </tr>
+              <tr>
+                <td><code>Content-Length</code></td>
+                <td>Tamanho do arquivo em bytes (quando disponível)</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div className="response-block error">
+            <div className="response-header">
+              <span className="status-code">400</span> Bad Request
+            </div>
+            <pre>{`{
+  "error": "A URL do vídeo é necessária. Use ?url=YOUTUBE_URL"
+}`}</pre>
+          </div>
+
+          <div className="response-block error">
+            <div className="response-header">
+              <span className="status-code">500</span> Internal Server Error
+            </div>
+            <pre>{`{
+  "error": "Erro ao obter informações do vídeo.",
+  "details": "..."
+}`}</pre>
+          </div>
+        </div>
+      </section>
+
       {/* POST /download */}
       <section className="docs-section">
         <div className="endpoint-card">
