@@ -1,10 +1,15 @@
 const express = require('express');
 const cors = require('cors');
 const { spawn } = require('child_process');
+const fs = require('fs');
+const path = require('path');
 
 const app = express();
 app.use(express.json());
 app.use(cors());
+
+const COOKIES_PATH = path.join(__dirname, 'cookies.txt');
+const cookiesArgs = () => fs.existsSync(COOKIES_PATH) ? ['--cookies', COOKIES_PATH] : [];
 
 app.post('/info', (req, res) => {
   const { url } = req.body;
@@ -13,7 +18,7 @@ app.post('/info', (req, res) => {
     return res.status(400).json({ error: 'A URL do vídeo é necessária.' });
   }
 
-  const args = ['-j', '--no-download', url];
+  const args = ['-j', '--no-download', ...cookiesArgs(), url];
   const process = spawn('yt-dlp', args);
 
   let output = '';
@@ -70,7 +75,7 @@ app.post('/direct-url', (req, res) => {
     return res.status(400).json({ error: 'A URL do vídeo é necessária.' });
   }
 
-  const args = ['-j', '--no-download', '-f', format || 'b', url];
+  const args = ['-j', '--no-download', '-f', format || 'b', ...cookiesArgs(), url];
   const process = spawn('yt-dlp', args);
 
   let output = '';
@@ -115,7 +120,7 @@ app.get('/stream', (req, res) => {
   }
 
   // Primeiro pega metadados para os headers
-  const infoProc = spawn('yt-dlp', ['-j', '--no-download', '-f', 'b', url]);
+  const infoProc = spawn('yt-dlp', ['-j', '--no-download', '-f', 'b', ...cookiesArgs(), url]);
   let infoOutput = '';
   let infoError = '';
 
@@ -141,7 +146,7 @@ app.get('/stream', (req, res) => {
       }
 
       // Faz streaming do vídeo direto para o response
-      const dlProc = spawn('yt-dlp', ['-o', '-', '-f', 'b', url]);
+      const dlProc = spawn('yt-dlp', ['-o', '-', '-f', 'b', ...cookiesArgs(), url]);
 
       dlProc.stdout.pipe(res);
 
@@ -171,7 +176,7 @@ app.post('/download', (req, res) => {
     return res.status(400).json({ error: 'A URL do vídeo é necessária.' });
   }
 
-  const args = ['--get-url', '-f', 'b', url];
+  const args = ['--get-url', '-f', 'b', ...cookiesArgs(), url];
   const process = spawn('yt-dlp', args);
 
   let output = '';
