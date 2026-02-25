@@ -107,6 +107,63 @@ app.post('/direct-url', (req, res) => {
   });
 });
 
+app.get('/stream', (req, res) => {
+  const { url } = req.query;
+
+  if (!url) {
+    return res.status(400).json({ error: 'A URL do vídeo é necessária. Use ?url=YOUTUBE_URL' });
+  }
+
+  // Primeiro pega metadados para os headers
+  const infoProc = spawn('yt-dlp', ['-j', '--no-download', '-f', 'b', url]);
+  let infoOutput = '';
+  let infoError = '';
+
+  infoProc.stdout.on('data', (data) => { infoOutput += data.toString(); });
+  infoProc.stderr.on('data', (data) => { infoError += data.toString(); });
+
+  infoProc.on('close', (code) => {
+    if (code !== 0) {
+      return res.status(500).json({ error: 'Erro ao obter informações do vídeo.', details: infoError });
+    }
+
+    try {
+      const info = JSON.parse(infoOutput);
+      const ext = info.ext || 'mp4';
+      const title = (info.title || 'video').replace(/[^a-zA-Z0-9_\-\s]/g, '');
+      const filename = `${title}.${ext}`;
+      const mime = ext === 'webm' ? 'video/webm' : 'video/mp4';
+
+      res.setHeader('Content-Type', mime);
+      res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+      if (info.filesize) {
+        res.setHeader('Content-Length', info.filesize);
+      }
+
+      // Faz streaming do vídeo direto para o response
+      const dlProc = spawn('yt-dlp', ['-o', '-', '-f', 'b', url]);
+
+      dlProc.stdout.pipe(res);
+
+      dlProc.stderr.on('data', (data) => {
+        console.error('yt-dlp stream stderr:', data.toString());
+      });
+
+      dlProc.on('error', () => {
+        if (!res.headersSent) {
+          res.status(500).json({ error: 'Erro ao fazer streaming do vídeo.' });
+        }
+      });
+
+      res.on('close', () => {
+        dlProc.kill();
+      });
+    } catch (e) {
+      res.status(500).json({ error: 'Erro ao processar dados do vídeo.' });
+    }
+  });
+});
+
 app.post('/download', (req, res) => {
   const { url } = req.body;
 

@@ -40,11 +40,12 @@ function Home() {
       ]);
 
       const data = await infoRes.json();
+      const streamUrl = `${apiUrl}/stream?url=${encodeURIComponent(url)}`;
 
       if (infoRes.ok) {
         setVideoTitle(data.title);
         setThumbnail(data.thumbnail);
-        setDownloadUrl(data.url);
+        setDownloadUrl(streamUrl);
         setMessage(`${data.title} - ${data.duration_string}`);
       } else {
         setMessage(data.error);
@@ -52,7 +53,7 @@ function Home() {
 
       if (directRes.ok) {
         const directData = await directRes.json();
-        setDirectUrl(directData.url);
+        setDirectUrl(streamUrl);
         setDirectFilename(directData.filename);
       }
     } catch (error) {
